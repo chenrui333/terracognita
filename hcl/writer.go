@@ -158,7 +158,7 @@ func writeTuple(pbody, body *hclwrite.Body, attr string, value cty.Value) {
 	// and if it's on this stage it's required to be
 	// printed
 	if value.LengthInt() == 0 {
-		body.AppendNewBlock(attr, nil)
+		body.SetAttributeValue(attr, value)
 	}
 	iter := value.ElementIterator()
 	for iter.Next() {
