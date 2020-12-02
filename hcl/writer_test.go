@@ -195,6 +195,42 @@ resource "type" "name" {
 
 		assert.Equal(t, strings.Join(strings.Fields(hcl), " "), strings.Join(strings.Fields(b.String()), " "))
 	})
+	t.Run("NestedMap", func(t *testing.T) {
+		var (
+			b     = &bytes.Buffer{}
+			hw    = hcl.NewWriter(b, &writer.Options{Interpolate: true})
+			value = map[string]interface{}{
+				"ingress": []map[string]interface{}{
+					{
+						"cidr_blocks": []string{},
+						"from_port": map[string]interface{}{
+							"in":  "vin",
+							"out": "vout",
+						},
+					},
+				},
+			}
+			hcl = `
+resource "type" "name" {
+  ingress {
+		cidr_blocks = []
+		from_port {
+			in = "vin"
+			out = "vout"
+		}
+	}
+}
+`
+		)
+
+		err := hw.Write("type.name", value)
+		require.NoError(t, err)
+
+		err = hw.Sync()
+		require.NoError(t, err)
+
+		assert.Equal(t, strings.Join(strings.Fields(hcl), " "), strings.Join(strings.Fields(b.String()), " "))
+	})
 }
 
 func TestHCLWriter_Interpolate(t *testing.T) {
